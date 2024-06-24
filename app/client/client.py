@@ -26,14 +26,14 @@ class Client:
             exit(1)
         # self.socket.set_blocking(False)
         while self.running:
-            option = input("What do you want to do?\n1 - Fetch file\n2 - Send message\n3 - Type request\n4 - Exit\n")
+            option = input("What do you want to do?\n1 - Fetch file\n2 - Send message\n3 - Exit\n")
             if option == "1":
-                self.handle_file()
+                result = self.handle_file()
+                while not result:
+                    result = self.handle_file()
             elif option == "2":
                 self.handle_chat()
             elif option == "3":
-                self.handle_request()
-            elif option == "4":
                 self.handle_exit()
                 break
             else:
@@ -81,6 +81,9 @@ class Client:
                 if transferred_file_sha256 != file_sha256:
                     print("File transfer failed. SHA256 mismatch.")
                     return False
+                if self.file_manager.get_file_size(file_name) != file_size:
+                    print("File transfer failed. File size mismatch.")
+                    return False
                 print("File transfer complete")
                 self.socket.send(b"ACK")
             elif data[:3] == b"404":
@@ -100,12 +103,14 @@ class Client:
                 file_content = data[3:]
                 self.file_manager.write_to_file(file_content, file_name, False)
                 self.socket.send(b"ACK")
-    
+
         return True
 
         
     def handle_chat(self) -> None:
-        pass
+        request = "CHAT"
+        self.socket.send(request.encode("utf-8"))
+        response = self.socket.recv(1024).decode("utf-8")
 
     def handle_request(self) -> None:
         pass
@@ -115,3 +120,4 @@ class Client:
         self.socket.send(request.encode("utf-8"))
         self.socket.close()
         self.running = False
+        print("Exiting...")

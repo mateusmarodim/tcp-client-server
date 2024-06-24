@@ -12,6 +12,7 @@ class Server:
         self.file_manager: FileManager | None = FileManager("server")
         self.log_manager: LogManager | None = LogManager(self.file_manager)
         self.lock: threading.Lock | None = threading.Lock()
+        self.log_manager.add_log(self.file_manager, "Starting server...")
         self.socket: socket.socket | None = self.create_socket()
         self.client_threads = []
         self.client_sockets = {}
@@ -22,29 +23,28 @@ class Server:
         server_port = SERVER_PORT
         while True:
             try:
-                print(f"Binding socket to {SERVER_IP}:{server_port}...")
+                self.log_manager.add_log(self.file_manager, f"Binding socket to {SERVER_IP}:{server_port}...")
                 _socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 _socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 _socket.bind((SERVER_IP, server_port))
-                self.log_manager.add_log(self.file_manager, f"Socket bound. Listening on {SERVER_IP}:{server_port}.")
+                self.log_manager.add_log(self.file_manager, f"Socket bound.")
                 return _socket
             except OSError:
                 _input = ""
                 while _input not in ["y", "n"]:
-                    print(f"Port {server_port} is already in use. Try another port?")
+                    self.log_manager.add_warn(self.file_manager, f"Port {server_port} is already in use. Try another port?")
                     _input = input("(y/n): ")
                     if _input == "y":
                         server_port += 1
                         break
                     elif _input == "n":
-                        self.log_manager.add_log(self.file_manager, "Exited.")
-                        print("Exiting...")
+                        self.log_manager.add_log(self.file_manager, "Exiting...")
                         exit(0)
                 continue
     
     def main_thread(self) -> None:
         self.socket.listen(10)
-        print(f"Listening on port {self.socket.getsockname()[1]}...")
+        self.log_manager.add_log(self.file_manager, f"Listening on {SERVER_IP}:{self.socket.getsockname()[1]}...")
         while True:
             client_socket, client_address = self.socket.accept()
             self.log_manager.add_log(self.file_manager, f"Connection established with {client_address[0]}:{client_address[1]}")
@@ -63,7 +63,6 @@ class Server:
                 data = client_socket.recv(1024)
                 if (data == b""): pass
                 self.log_manager.add_log(self.file_manager, f"Received request from {client_address[0]}:{client_address[1]}: {data.decode()}")
-                # print(str(data[:4]))
 
                 if (data[:4] == b"EXIT"):
                     ## TODO: implement exit
@@ -78,8 +77,8 @@ class Server:
                     response = b"400Invalid request"
                     client_socket.send(response)
                     break
-            except BlockingIOError as e:
-                print(f"Blocking error: {e}")
+            except Exception as e:
+                self.log_manager.add_error(self.file_manager, f"Exception occurred: {e}")
                 pass
         client_socket.close()
         self.log_manager.add_log(self.file_manager, f"Connection with {client_address[0]}:{client_address[1]} closed.")
@@ -122,9 +121,16 @@ class Server:
                 while client_response != b"ACK":
                     client_socket.send(b"EOF")
                     client_response = client_socket.recv(1024)
-
         except Exception as e:
             status_code = "500"
             message = "Internal server error."
             response = f"{status_code}{message}\r\n"
             client_socket.send(response.encode("utf-8"))
+
+    def handle_chat_request(self, data: str, client_socket: socket.socket) -> None:
+        message = f"{str(client_socket.getpeername())}: {data}"
+        self.log_manager.add_log(self.file_manager, message)
+        pass
+
+    def handle_exit_request(self, client_socket: socket.socket) -> None:
+        pass

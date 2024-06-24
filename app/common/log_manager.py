@@ -12,9 +12,9 @@ class LogManager:
     def add_log(self, file_manager: FileManager, message: str) -> None:
         try:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            message = f"[I {current_time}]: {message}\n"
+            message = f"[I {current_time}]: {message}"
             log_file = f"{self.base_dir}/log.log"
-            file_manager.write_to_file(content=message, file_name=log_file, overwrite=False)
+            file_manager.write_to_file(content=f"{message}\n", file_name=log_file, overwrite=False)
             print(message)
         except OSError as e:
             print(f"error: {e}")
@@ -22,9 +22,9 @@ class LogManager:
     def add_warn(self, file_manager: FileManager, message: str) -> None:
         try:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            message = f"[W {current_time}]: {message}\n"
+            message = f"[W {current_time}]: {message}"
             log_file = f"{self.base_dir}/log.log"
-            file_manager.write_to_file(content=message, file_name=log_file, overwrite=False)
+            file_manager.write_to_file(content=f"{message}\n", file_name=log_file, overwrite=False)
             print(message)
         except OSError as e:
             print(f"error: {e}")
@@ -32,9 +32,9 @@ class LogManager:
     def add_error(self, file_manager: FileManager, message: str) -> None:
         try:
             current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            message = f"[E {current_time}]: {message}\n"
+            message = f"[E {current_time}]: {message}"
             log_file = f"{self.base_dir}/log.log"
-            file_manager.write_to_file(content=message, file_name=log_file, overwrite=False)
+            file_manager.write_to_file(content=f"{message}\n", file_name=log_file, overwrite=False)
             print(message)
         except OSError as e:
             print(f"error: {e}")

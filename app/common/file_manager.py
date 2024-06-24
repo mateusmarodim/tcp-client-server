@@ -46,7 +46,6 @@ class FileManager:
     def read_from_file(self, file_name: str):
         try:
             file_path = f"{self.base_directory}/{file_name}"
-            print(file_path)
             with open(file_path, "rb") as file:
                 yield os.path.getsize(file_path)
                 while True:
@@ -75,4 +74,9 @@ class FileManager:
             return sha256_hash.hexdigest()
         except OSError:
             return False
-        
+    
+    def get_file_size(self, file_name: str) -> int:
+        try:
+            return os.path.getsize(f"{self.base_directory}/{file_name}")
+        except OSError:
+            return 0
