@@ -55,6 +55,9 @@ class FileManager:
                     yield data
         except OSError:
             return False
+        
+    def check_file_exists(self, file_name: str) -> bool:
+        return os.path.exists(f"{self.base_directory}/{file_name}")
 
     def check_or_create_directory(self, directory_name: str) -> bool:
         try:

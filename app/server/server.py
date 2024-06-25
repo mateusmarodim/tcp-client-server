@@ -68,15 +68,16 @@ class Server:
 
     def handle_file_request(self, file_name: str, client_socket: socket.socket) -> None:
         try:
-            file_generator = self.file_manager.read_from_file(file_name)
-            file_size = next(file_generator)
-            if not file_size:
+            if not self.file_manager.check_file_exists(file_name):
                 status_code = "404"
                 message = "File not found."
                 response = status_code + CRLF + \
                            message
                 client_socket.send(response.encode("utf-8"))
+                
             else:
+                file_generator = self.file_manager.read_from_file(file_name)
+                file_size = next(file_generator)
                 status_code = "202"
                 file_hash = self.file_manager.calculate_sha256(file_name)
                 response = status_code + CRLF + \
