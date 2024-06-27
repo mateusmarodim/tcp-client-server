@@ -1,6 +1,5 @@
 import threading
 import socket
-import hashlib
 from app.common.constants import CHUNK_SIZE, SERVER_IP, SERVER_PORT, CRLF
 from app.common.file_manager import FileManager
 from app.common.log_manager import LogManager

@@ -1,4 +1,4 @@
-from app.server.server import Server
+from app.http.server import Server
 
 def main():
     server = Server()

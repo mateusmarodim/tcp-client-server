@@ -1,6 +1,5 @@
 import threading
 import socket
-import hashlib
 from app.common.file_manager import FileManager
 from app.common.log_manager import LogManager
 from app.common.constants import \
@@ -31,7 +30,6 @@ class Client:
         except Exception as e:
             print(f"Exception occurred: {e}")
             exit(1)
-        # self.socket.set_blocking(False)
         while self.running:
             option = input("What do you want to do?\n1 - Fetch file\n2 - Chat\n3 - Exit\n")
             if option == "1":
